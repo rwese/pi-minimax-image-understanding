@@ -1,0 +1,23 @@
+{
+  "name": "@wese/pi-minimax-image-understanding",
+  "version": "1.0.0",
+  "description": "MiniMax Image Understanding extension for pi coding agent",
+  "keywords": ["pi-package", "minimax", "image-understanding", "vlm", "vision"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rwese/pi-minimax-image-understanding"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "pi": {
+    "extensions": ["./src/**/*.ts"]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*",
+    "@sinclair/typebox": "*"
+  },
+  "engines": {
+    "pi": ">=0.60.0"
+  }
+}
