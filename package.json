@@ -11,7 +11,7 @@
     ".": "./src/index.ts"
   },
   "pi": {
-    "extensions": ["./src/**/*.ts"]
+    "extensions": ["./extensions/**/*.ts"]
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
