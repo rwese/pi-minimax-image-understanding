@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Generated config (created by tsc --init)
+tsconfig.json
+
+# Lock file
+package-lock.json
+
+# Local tracking
+TODO.md

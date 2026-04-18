@@ -12,6 +12,15 @@ export default [
         ecmaVersion: 2022,
         sourceType: "module",
       },
+      globals: {
+        process: "readonly",
+        fetch: "readonly",
+        Buffer: "readonly",
+        AbortSignal: "readonly",
+        console: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+      },
     },
     plugins: {
       "@typescript-eslint": tseslint,
@@ -19,7 +28,7 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "prefer-const": "error",
       "no-var": "error",
