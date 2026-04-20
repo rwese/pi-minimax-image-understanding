@@ -29,34 +29,12 @@ async function loadImageAsBase64(path: string): Promise<string> {
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
     webp: "image/webp",
-    gif: "image/gif",
   };
   const mediaType = extToMime[ext] ?? "image/jpeg";
 
   const data = await readFile(path);
   const base64 = data.toString("base64");
   return `data:${mediaType};base64,${base64}`;
-}
-
-async function fetchUrlAsBase64(url: string): Promise<string> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image URL: ${url} — HTTP ${response.status}`);
-  }
-
-  const contentType = response.headers.get("Content-Type") ?? "image/jpeg";
-  const mediaType = (contentType.split(";")[0] ?? "image/jpeg").trim();
-  const validTypes: Record<string, string> = {
-    "image/png": "image/png",
-    "image/jpeg": "image/jpeg",
-    "image/webp": "image/webp",
-    "image/gif": "image/gif",
-  };
-  const resolvedType = validTypes[mediaType] ?? "image/jpeg";
-
-  const blob = await response.arrayBuffer();
-  const base64 = Buffer.from(blob).toString("base64");
-  return `data:${resolvedType};base64,${base64}`;
 }
 
 async function callVLM(apiKey: string, prompt: string, imageUrl: string, apiHost: string, signal?: AbortSignal): Promise<string> {
@@ -95,64 +73,17 @@ export default function (pi: ExtensionAPI) {
   pi.registerTool({
     name: "image_understanding",
     label: "Image Understanding",
-    description:
-      "Analyze, describe, or extract information from images using vision-language models. " +
-      "Use for describing screenshots, reading text from images, analyzing diagrams, or visual question answering.",
+    description: "Analyze local images: screenshots, diagrams, charts, or any image file.",
     parameters: Type.Object({
-      prompt: Type.String({
-        description: "Question or instruction for the image",
-        minLength: 1,
-      }),
-      image: Type.Union([
-        Type.Object({
-          type: Type.Literal("path"),
-          value: Type.String({ description: "Local path to the image file" }),
-        }),
-        Type.Object({
-          type: Type.Literal("url"),
-          value: Type.String({ description: "HTTP(S) URL to the image" }),
-        }),
-        Type.Object({
-          type: Type.Literal("base64"),
-          data: Type.String({ description: "Base64-encoded image data (with optional data: URI prefix)" }),
-        }),
-      ], { description: "Image source: local path, URL, or base64 data" }),
+      prompt: Type.String({ minLength: 1, description: "Question or instruction about the image" }),
+      image: Type.String({ minLength: 1, description: "Path to the image file" }),
     }),
 
     async execute(_toolCallId, params, signal, onUpdate) {
       onUpdate?.({ content: [{ type: "text", text: "Processing image..." }] } as Parameters<typeof onUpdate>[0]);
 
       const config = getConfig();
-
-      // Defensive: handle cases where the framework passes image as a JSON string
-      let imageParam: { type: "path"; value: string } | { type: "url"; value: string } | { type: "base64"; data: string } = params.image as { type: "path"; value: string } | { type: "url"; value: string } | { type: "base64"; data: string };
-      if (typeof imageParam === "string") {
-        try {
-          imageParam = JSON.parse(imageParam) as typeof imageParam;
-        } catch (_e) {
-          const val = imageParam as string;
-          throw new Error(`Invalid image parameter: expected object, got string "${val.slice(0, 50)}..."`);
-        }
-      }
-
-      let imageUrl: string = "";
-
-      if (imageParam.type === "path") {
-        imageUrl = await loadImageAsBase64(imageParam.value);
-      } else if (imageParam.type === "url") {
-        imageUrl = await fetchUrlAsBase64(imageParam.value);
-      } else {
-        // Auto-detect MIME type from data: URI prefix or default to jpeg
-        let mimeType = "image/jpeg";
-        let base64Data = imageParam.data;
-        const dataMatch = base64Data.match(/^data:([^;]+);base64,/);
-        if (dataMatch !== null && dataMatch[1] !== undefined && dataMatch[0] !== undefined) {
-          mimeType = dataMatch[1];
-          base64Data = base64Data.slice(dataMatch[0].length);
-        }
-        imageUrl = `data:${mimeType};base64,${base64Data}`;
-      }
-
+      const imageUrl = await loadImageAsBase64(params.image);
       const result = await callVLM(config.apiKey, params.prompt, imageUrl, config.apiHost ?? API_HOST, signal);
 
       return {
