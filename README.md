@@ -30,7 +30,7 @@ Example prompts:
 ## Features
 
 - Vision-language model via MiniMax API
-- Supports local file paths, URLs, and base64 images
+- Supports local file paths
 - Image format support: PNG, JPEG, WebP, GIF
 - Describe screenshots, diagrams, charts, documents
 - Extract text from images (OCR-style)
