@@ -34,3 +34,4 @@ Example prompts:
 - Image format support: PNG, JPEG, WebP, GIF
 - Describe screenshots, diagrams, charts, documents
 - Extract text from images (OCR-style)
+- Custom TUI rendering showing the query in the result header

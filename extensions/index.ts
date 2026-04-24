@@ -1,4 +1,5 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Text } from "@mariozechner/pi-tui";
 import { Type } from "@sinclair/typebox";
 
 const API_HOST = "https://api.minimax.io";
@@ -88,8 +89,35 @@ export default function (pi: ExtensionAPI) {
 
       return {
         content: [{ type: "text", text: result }],
-        details: {},
+        details: { query: params.prompt },
       };
+    },
+
+    renderCall(args, theme, _context) {
+      const text = new Text("", 0, 0);
+      let content = theme.fg("toolTitle", theme.bold("image_understanding "));
+      content += theme.fg("muted", `"${args.prompt}"`);
+      text.setText(content);
+      return text;
+    },
+
+    renderResult(result, { isPartial }, theme, _context) {
+      if (isPartial) {
+        return new Text(theme.fg("warning", "Processing image..."), 0, 0);
+      }
+
+      const text = new Text("", 0, 0);
+      const query = (result.details as { query?: string } | undefined)?.query;
+      let content = theme.fg("success", "✓ Image Understanding");
+      if (query) {
+        content += "\n" + theme.fg("dim", `Query: ${query}`);
+      }
+      content += "\n";
+      // Append the actual result text
+      const resultText = result.content?.[0]?.type === "text" ? result.content[0].text : "";
+      content += resultText;
+      text.setText(content);
+      return text;
     },
   });
 }
