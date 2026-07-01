@@ -3,49 +3,73 @@ import tseslint from "@typescript-eslint/eslint-plugin";
 import tsparser from "@typescript-eslint/parser";
 
 export default [
-  eslint.configs.recommended,
-  {
-    files: ["extensions/**/*.ts"],
-    languageOptions: {
-      parser: tsparser,
-      parserOptions: {
-        ecmaVersion: 2022,
-        sourceType: "module",
-      },
-      globals: {
-        process: "readonly",
-        fetch: "readonly",
-        Buffer: "readonly",
-        AbortSignal: "readonly",
-        console: "readonly",
-        setTimeout: "readonly",
-        clearTimeout: "readonly",
-      },
-    },
-    plugins: {
-      "@typescript-eslint": tseslint,
-    },
-    rules: {
-      ...tseslint.configs.recommended.rules,
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
-      "no-console": ["warn", { allow: ["warn", "error"] }],
-      "prefer-const": "error",
-      "no-var": "error",
-      "eqeqeq": ["error", "always"],
-      "no-unused-expressions": "error",
-      "no-throw-literal": "error",
-      "require-await": "error",
-      "@typescript-eslint/explicit-function-return-type": "off",
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "@typescript-eslint/no-namespace": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-      "@typescript-eslint/no-require-imports": "off",
-      "@typescript-eslint/no-empty-interface": "off",
-      "@typescript-eslint/ban-types": "off",
-      "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
-    },
-  },
+	eslint.configs.recommended,
+	{
+		files: ["extensions/**/*.ts", "src/**/*.ts", "tests/**/*.ts"],
+		languageOptions: {
+			parser: tsparser,
+			parserOptions: {
+				ecmaVersion: 2022,
+				sourceType: "module",
+			},
+			globals: {
+				process: "readonly",
+				fetch: "readonly",
+				Buffer: "readonly",
+				AbortSignal: "readonly",
+				AbortController: "readonly",
+				RequestInit: "readonly",
+				console: "readonly",
+				setTimeout: "readonly",
+				clearTimeout: "readonly",
+				URL: "readonly",
+				URLSearchParams: "readonly",
+			},
+		},
+		plugins: {
+			"@typescript-eslint": tseslint,
+		},
+		rules: {
+			...tseslint.configs.recommended.rules,
+			"@typescript-eslint/no-explicit-any": "warn",
+			"@typescript-eslint/no-unused-vars": [
+				"error",
+				{
+					argsIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					caughtErrorsIgnorePattern: "^_",
+				},
+			],
+			"no-console": ["warn", { allow: ["warn", "error"] }],
+			"prefer-const": "error",
+			"no-var": "error",
+			eqeqeq: ["error", "always"],
+			"no-unused-expressions": "error",
+			"no-throw-literal": "error",
+			"require-await": "error",
+			"@typescript-eslint/explicit-function-return-type": "off",
+			"@typescript-eslint/explicit-module-boundary-types": "off",
+			"@typescript-eslint/no-inferrable-types": "off",
+			"@typescript-eslint/no-non-null-assertion": "off",
+			"@typescript-eslint/no-namespace": "off",
+			"@typescript-eslint/no-empty-object-type": "off",
+			"@typescript-eslint/no-require-imports": "off",
+			"@typescript-eslint/no-empty-interface": "off",
+			"@typescript-eslint/ban-types": "off",
+			"@typescript-eslint/consistent-type-imports": [
+				"error",
+				{ prefer: "type-imports" },
+			],
+		},
+	},
+	{
+		// Test files legitimately use `async () => ({...})` to satisfy
+		// interfaces that expect Promise-returning functions; the
+		// require-await rule is too strict there.
+		files: ["tests/**/*.ts"],
+		rules: {
+			"require-await": "off",
+			"@typescript-eslint/no-explicit-any": "off",
+		},
+	},
 ];
