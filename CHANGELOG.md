@@ -17,8 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared core modules in `src/` (`config`, `image`, `vlm`, `cli`) so
   the pi extension and the CLI consume the same code path.
 - Tests for config, image loading, VLM client, and CLI argument parsing
-  and execution (36 tests, vitest).
+  and execution (37 tests, vitest, including a jiti-loader integration
+  test that confirms the pi extension registers through the loader pi
+  actually uses).
 - `vitest.config.ts` to wire up the new `tests/` directory.
+- MIT `LICENSE` file (was referenced in `package.json#files` but
+  missing).
+- README **Quickstart** section at the top, leading with the pi
+  extension (the primary packaging form), with the CLI as a
+  one-off-via-`npx` alternative. The minimum path to "it works" is now
+  reachable without scrolling past installation trivia.
+- README **Configuration** table for env vars (`MINIMAX_API_KEY`,
+  `MINIMAX_API_HOST`) and a JPG/JPEG clarification in the supported
+  formats list.
 
 ### Changed
 
@@ -29,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `bin/` and `src/`.
 - ESLint config now lints `src/` and `tests/` in addition to
   `extensions/`.
+- README reorganized: Quickstart → Installation → Configuration →
+  Usage (extension + CLI) → Features → Development. The `Configuration`
+  section now leads with an env-var table; the `Usage as a pi extension`
+  section clarifies that pi calls the tool automatically rather than
+  the user invoking it.
+- README `pi install` command corrected to `git:github.com/...` (the
+  bare `github.com/...` form is mis-parsed by pi as a local path and
+  fails — caught in review).
 
 ## [1.0.0] - 2026-04-24
 

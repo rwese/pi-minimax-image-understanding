@@ -1,14 +1,44 @@
 # @rwese/minimax-image-understanding
 
 MiniMax image understanding — ships as both a [pi coding agent](https://github.com/mariozechner/pi-coding-agent) extension
-and a standalone CLI for `npx`.
+and a standalone CLI for `npx`. Same API, two ways to use it.
+
+## Quickstart
+
+### Use it from inside pi (primary)
+
+```bash
+pi install git:github.com/rwese/pi-minimax-image-understanding
+```
+
+Then export your API key and ask the agent anything about a local image:
+
+```bash
+export MINIMAX_API_KEY="your-api-key"
+```
+
+- *"Describe this image"* (`./screenshot.png`)
+- *"Read the text from this screenshot"*
+- *"What does this chart show?"*
+
+The extension registers the `image_understanding` tool; pi decides when
+to call it.
+
+### Use it once from the command line
+
+```bash
+npx @rwese/minimax-image-understanding --prompt "Describe this image" ./photo.png
+```
+
+That's it — `npx` fetches the package on first run, prints the model's
+response to stdout, exits.
 
 ## Installation
 
 ### As a pi extension
 
 ```bash
-pi install github.com/rwese/pi-minimax-image-understanding
+pi install git:github.com/rwese/pi-minimax-image-understanding
 ```
 
 ### As a standalone CLI
@@ -30,25 +60,28 @@ minimax-image-understanding --prompt "Describe this image" ./screenshot.png
 
 ## Configuration
 
-Set your MiniMax API key in the environment. Both the extension and the CLI
-read the same variables:
+Both the extension and the CLI read the same environment variables:
 
-```bash
-export MINIMAX_API_KEY="your-api-key"
-export MINIMAX_API_HOST="https://api.minimax.io"  # optional, defaults to api.minimax.io
-```
+| Variable            | Required | Default                  |
+| ------------------- | -------- | ------------------------ |
+| `MINIMAX_API_KEY`   | Yes      | —                        |
+| `MINIMAX_API_HOST`  | No       | `https://api.minimax.io` |
+
+Supported image formats: PNG, JPG/JPEG, WebP, GIF. Anything else falls
+back to `image/jpeg`.
 
 ## Usage as a pi extension
 
-The extension registers an `image_understanding` tool for analyzing images
-using vision-language models.
-
-Example prompts:
+The extension registers an `image_understanding` tool. pi calls it
+automatically when the user's request fits; you don't invoke it
+directly. Example prompts that trigger it:
 
 - "Describe this image"
 - "Read the text from this screenshot"
 - "What does this chart show?"
 - "Analyze the diagram"
+
+The result is rendered in pi's TUI with the query in the result header.
 
 ## Usage as a CLI
 
@@ -91,10 +124,6 @@ MINIMAX_API_KEY=... npx @rwese/minimax-image-understanding \
 | `2`  | Configuration error (missing API key).   |
 | `3`  | API or network error.                    |
 
-### Supported image formats
-
-PNG, JPEG, WebP, GIF. Anything else falls back to `image/jpeg`.
-
 ### Platform notes
 
 The bin script uses a Unix shebang (`#!/usr/bin/env -S npx -y tsx`). On
@@ -107,10 +136,10 @@ npx -y @rwese/minimax-image-understanding --prompt "describe" image.png
 ## Features
 
 - Vision-language model via MiniMax API
-- Supports local file paths
-- Image format support: PNG, JPEG, WebP, GIF
+- Local image file paths (PNG, JPG/JPEG, WebP, GIF)
 - Describe screenshots, diagrams, charts, documents
 - Extract text from images (OCR-style)
+- `--json` / `-o` for scripting and pipelines (CLI)
 - Custom TUI rendering showing the query in the result header (pi extension)
 
 ## Development
@@ -120,6 +149,13 @@ npm install
 npm run validate   # typecheck + lint + tests
 ```
 
-The CLI's entry point is `bin/minimax-image-understanding`. Core logic
-(`config`, `image`, `vlm`) lives in `src/` and is shared between the
-extension and the CLI.
+Layout:
+
+- `bin/minimax-image-understanding` — Unix shebang entry point; calls
+  into `src/cli.ts` via `tsx`.
+- `src/cli.ts` — argument parsing and `run()`.
+- `src/config.ts`, `src/image.ts`, `src/vlm.ts` — pure core shared with
+  the pi extension.
+- `extensions/index.ts` — the pi extension entry, imports the same
+  `src/` modules.
+- `tests/` — vitest unit + integration tests (37 tests).
